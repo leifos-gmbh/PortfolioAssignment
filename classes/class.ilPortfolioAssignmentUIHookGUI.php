@@ -66,7 +66,7 @@ class ilPortfolioAssignmentUIHookGUI extends ilUIHookPluginGUI
 		}
 
 
-		if ($_GET["baseClass"] == "ilPersonalDesktopGUI" && $port)
+		if (strtolower($_GET["baseClass"]) == "ilpersonaldesktopgui" && $port)
 		{
 			$port_id = (int) $_GET["prt_id"];
 
