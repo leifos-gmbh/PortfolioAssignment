@@ -89,7 +89,7 @@ class ilPortfolioAssignmentUIHookGUI extends ilUIHookPluginGUI
 						if (!$tree->isSaved($ref_id))
 						{
 							$active_ref = true;
-
+							$exc_ref_id = $ref_id;
 							$ass_id = $exercise["ass_id"];
 						}
 					}
@@ -102,6 +102,29 @@ class ilPortfolioAssignmentUIHookGUI extends ilUIHookPluginGUI
 				if ($ass->getInstruction() != "")
 				{
 					$lng->loadLanguageModule("exc");
+
+					// instruction files
+					$files = $ass->getFiles();
+
+					if (count($files) > 0)
+					{
+						global $DIC;
+
+						//file has -> name,fullpath,size,ctime
+						include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+						include_once("./Services/MediaObjects/classes/class.ilMediaPlayerGUI.php");
+						include_once "./Services/UIComponent/Modal/classes/class.ilModalGUI.php";
+
+						$files_html = "";
+						foreach($files as $file)
+						{
+							$files_html.= "<p><a href='".
+								$this->getSubmissionLink($exc_ref_id, $ass_id, "downloadFile", array("file"=>urlencode($file["name"]))).
+								"'>".$file["name"]."</a></p>";
+						}
+					}
+
+
 
 
 					$style = "<style>#exc_ass_".$ass->getId()."_tr {display: none;}</style>";
@@ -133,7 +156,7 @@ EOT;
 
 					$main_tpl->setRightContent("<div id='instr_port_plugin_container'><div id='instr_port_plugin' style='background-color:white; padding: 2px 10px; font-size:90%;'>".
 						"<h4>".$lng->txt("exc_work_instructions")."</h4>".
-						$ass->getInstruction()."</div></div>".$style.$code);
+						$ass->getInstruction().$files_html."</div></div>".$style.$code);
 					return;
 					$main_tpl->setRightContent("&nbsp;");
 					/*return "<div id='portinstr' style='background-color:white; z-index: 1200; display: block; top: 40px; overflow: auto; position: fixed; bottom: 0px; right: 0px; width: 25%; height: 100%;'>".
@@ -146,7 +169,38 @@ EOT;
 		}
 		return "";
 	}
-	
+
+
+	protected function getSubmissionLink($exc_ref_id, $ass_id, $a_cmd, array $a_params = null)
+	{
+		global $DIC;
+
+		$ilCtrl = $DIC->ctrl();
+
+		if(is_array($a_params))
+		{
+			foreach($a_params as $name => $value)
+			{
+				$ilCtrl->setParameterByClass("ilexsubmissiongui", $name, $value);
+			}
+		}
+
+		$ilCtrl->setParameterByClass("ilexsubmissiongui", "ass_id", $ass_id);
+		$ilCtrl->setParameterByClass("ilexsubmissiongui", "ref_id", $exc_ref_id);
+		$url = $ilCtrl->getLinkTargetByClass(array("ilExerciseHandlerGUI", "ilObjExerciseGUI", "ilexsubmissiongui"), $a_cmd);
+		$ilCtrl->setParameterByClass("ilexsubmissiongui", "ass_id", "");
+		$ilCtrl->setParameterByClass("ilexsubmissiongui", "ref_id", "");
+
+		if (is_array($a_params))
+		{
+			foreach ($a_params as $name => $value)
+			{
+				$ilCtrl->setParameterByClass("ilexsubmissiongui", $name, "");
+			}
+		}
+
+		return $url;
+	}
 
 
 }
