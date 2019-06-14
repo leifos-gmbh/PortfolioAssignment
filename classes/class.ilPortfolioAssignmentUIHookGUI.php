@@ -122,6 +122,12 @@ class ilPortfolioAssignmentUIHookGUI extends ilUIHookPluginGUI
 								$this->getSubmissionLink($exc_ref_id, $ass_id, "downloadFile", array("file"=>urlencode($file["name"]))).
 								"'>".$file["name"]."</a></p>";
 						}
+						if ($files_html != "")
+						{
+							$files_html =
+								"<h4 style='background-color:#f3f3f3; padding: 5px; font-weight:bold;'>".$lng->txt("exc_files")."</h4>".
+								$files_html;
+						}
 					}
 
 
@@ -155,7 +161,7 @@ class ilPortfolioAssignmentUIHookGUI extends ilUIHookPluginGUI
 EOT;
 
 					$main_tpl->setRightContent("<div id='instr_port_plugin_container'><div id='instr_port_plugin' style='background-color:white; padding: 2px 10px; font-size:90%;'>".
-						"<h4>".$lng->txt("exc_work_instructions")."</h4>".
+						"<h4 style='background-color:#f3f3f3; padding: 5px; font-weight:bold;'>".$lng->txt("exc_work_instructions")."</h4>".
 						$ass->getInstruction().$files_html."</div></div>".$style.$code);
 					return;
 					$main_tpl->setRightContent("&nbsp;");
